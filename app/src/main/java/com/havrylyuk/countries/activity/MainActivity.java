@@ -12,14 +12,11 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.havrylyuk.countries.R;
 import com.havrylyuk.countries.adapter.CountriesRecyclerViewAdapter;
 import com.havrylyuk.countries.loader.CountriesLoader;
-import com.havrylyuk.countries.model.Countries;
 import com.havrylyuk.countries.model.Country;
 import com.havrylyuk.countries.observer.ContentObserver;
 import com.havrylyuk.countries.service.CountriesService;
@@ -33,7 +30,6 @@ public class MainActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<List<Country>>,
         Observer {
 
-    private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final int LOADER_COUNTRIES = 1;
     private CountriesRecyclerViewAdapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
