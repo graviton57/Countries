@@ -1,8 +1,10 @@
 package com.havrylyuk.countries.activity;
 
 import android.app.LoaderManager;
+import android.content.Intent;
 import android.content.Loader;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,8 +19,10 @@ import android.widget.Toast;
 import com.havrylyuk.countries.R;
 import com.havrylyuk.countries.adapter.CountriesRecyclerViewAdapter;
 import com.havrylyuk.countries.loader.CountriesLoader;
+import com.havrylyuk.countries.model.Countries;
 import com.havrylyuk.countries.model.Country;
 import com.havrylyuk.countries.observer.ContentObserver;
+import com.havrylyuk.countries.service.CountriesService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final int LOADER_COUNTRIES = 1;
     private CountriesRecyclerViewAdapter adapter;
-    private ProgressBar progressBar;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +45,8 @@ public class MainActivity extends AppCompatActivity implements
         ContentObserver.getInstance().addObserver(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
         setupRecyclerView();
+        setupSwipeRefreshLayout();
         getLoaderManager().initLoader(LOADER_COUNTRIES, null, this);
     }
 
@@ -61,6 +65,22 @@ public class MainActivity extends AppCompatActivity implements
         recyclerView.setAdapter(adapter);
     }
 
+    private void setupSwipeRefreshLayout(){
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_to_refresh);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                swipeRefreshLayout.setRefreshing(true);
+                Intent intent = new Intent(MainActivity.this, CountriesService.class);
+                startService(intent);
+            }
+        });
+        swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -76,26 +96,12 @@ public class MainActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-    private void setProgressBarVisible(final boolean visible) {
-        if (progressBar == null) {
-            return;
-        }
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (visible) {
-                    progressBar.setVisibility(View.VISIBLE);
-                } else {
-                    progressBar.setVisibility(View.GONE);
-                }
-            }
-        });
-    }
-
     @Override
     public Loader<List<Country>> onCreateLoader(int id, Bundle args) {
         if (id == LOADER_COUNTRIES) {
-            setProgressBarVisible(true);
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(true);
+            }
             if (adapter != null) {
                 return new CountriesLoader(this);
             }
@@ -106,7 +112,9 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onLoadFinished(Loader<List<Country>> loader, List<Country> data) {
         if (loader.getId() == LOADER_COUNTRIES) {
-            setProgressBarVisible(false);
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
             if (adapter != null) {
                 adapter.setCountryList(data);
             }
