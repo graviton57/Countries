@@ -70,20 +70,28 @@ public class QueryHelper  {
     }
 
     public Country getCountryById(long id) {
-        Country result = null;
-            Cursor c = database.query(DBHelper.COUNTRIES_TABLE_NAME,
-                    null,
+        Country country = null;
+            Cursor c = database.query(DBHelper.COUNTRIES_TABLE_NAME, null,
                     DBHelper.COUNTRY_ID + " = ?",
                     new String[]{String.valueOf(id)},
-                    null,
-                    null,
-                    null);
+                    null, null, null);
             if (c != null && c.moveToFirst()) {
-                 result = new Country();
-                 result.setCapital(c.getString(c.getColumnIndex(DBHelper.COUNTRY_CAPITAL)));
+                country = new Country();
+                country.setId(c.getInt(c.getColumnIndex(DBHelper.COUNTRY_ID)));
+                country.setGeonameId(c.getInt(c.getColumnIndex(DBHelper.COUNTRY_GEONAME_ID)));
+                country.setCountryName(c.getString(c.getColumnIndex(DBHelper.COUNTRY_NAME)));
+                country.setContinentName(c.getString(c.getColumnIndex(DBHelper.COUNTRY_CONTINENT_NAME)));
+                country.setCurrencyCode(c.getString(c.getColumnIndex(DBHelper.COUNTRY_CODE)));
+                country.setCapital(c.getString(c.getColumnIndex(DBHelper.COUNTRY_CAPITAL)));
+                country.setAreaInSqKm(c.getString(c.getColumnIndex(DBHelper.COUNTRY_AREA)));
+                country.setLanguages(c.getString(c.getColumnIndex(DBHelper.COUNTRY_LANGUAGES)));
+                country.setWest(c.getFloat(c.getColumnIndex(DBHelper.COUNTRY_WEST)));
+                country.setEast(c.getFloat(c.getColumnIndex(DBHelper.COUNTRY_EAST)));
+                country.setNorth(c.getFloat(c.getColumnIndex(DBHelper.COUNTRY_NORTH)));
+                country.setSouth(c.getFloat(c.getColumnIndex(DBHelper.COUNTRY_SOUTH)));
                 c.close();
             }
-         return  result;
+         return  country;
     }
 
     public int delete(long id) {
@@ -127,6 +135,7 @@ public class QueryHelper  {
             cv.put(DBHelper.COUNTRY_CAPITAL, country.getCapital());
             cv.put(DBHelper.COUNTRY_CONTINENT_NAME, country.getContinentName());
             cv.put(DBHelper.COUNTRY_CODE, country.getCountryCode());
+            cv.put(DBHelper.COUNTRY_LANGUAGES, country.getLanguages());
             cv.put(DBHelper.COUNTRY_NAME, country.getCountryName());
             cv.put(DBHelper.COUNTRY_WEST, country.getWest());
             cv.put(DBHelper.COUNTRY_EAST, country.getEast());
